@@ -16,8 +16,8 @@ int main(void)
 
   __HAL_RCC_GPIOC_CLK_ENABLE(); // enable GPIOC clock
 
-  GPIO_InitTypeDef GPIO_InitStruct = {GPIO_PIN_8, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); // initialize pc8 and pc9
+  GPIO_InitTypeDef initSt = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  HAL_GPIO_Init(GPIOC, &initSt); // initialize pc8 and pc9
 
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET); // start pc8 high
 
