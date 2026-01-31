@@ -23,7 +23,7 @@ int main(void)
   assert((GPIOC->MODER & (0xF << 16)) == (0x5 << 16));
 
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET); // start pc8 high
-  assert(GPIOC->ODR & (1 << 8));
+  assert(GPIOC->ODR == 0x00000100);
 
   while (1)
   {
