@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "assert.h"
 
 void SystemClock_Config(void);
 
@@ -15,10 +16,10 @@ int main(void)
   SystemClock_Config();
 
   __HAL_RCC_GPIOC_CLK_ENABLE(); // enable GPIOC clock
+  assert(RCC->AHBENR & RCC_AHBENR_GPIOCEN);
 
   GPIO_InitTypeDef initSt = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &initSt); // initialize pc8 and pc9
-
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET); // start pc8 high
 
   while (1)
