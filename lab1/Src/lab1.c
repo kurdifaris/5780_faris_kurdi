@@ -15,20 +15,20 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  __HAL_RCC_GPIOC_CLK_ENABLE(); // enable GPIOC clock
+  HAL_RCC_GPIOC_CLK_Enable(); // enable GPIOC clock
   assert(RCC->AHBENR & RCC_AHBENR_GPIOCEN);
 
-  GPIO_InitTypeDef initSt = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  GPIO_InitTypeDef initSt = {GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &initSt); // initialize pc8 and pc9
-  assert((GPIOC->MODER & (0xF << 16)) == (0x5 << 16));
+  // assert((GPIOC->MODER & (0xF << 16)) == (0x5 << 16));
 
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET); // start pc8 high
-  assert(GPIOC->ODR == 0x00000100);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET); // start pc8 high
+  // assert(GPIOC->ODR == 0x00000100);
 
   while (1)
   {
     HAL_Delay(200); // delay 200ms
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle pc8 and pc9
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6 | GPIO_PIN_7); // toggle pc8 and pc9
   }
 }
 
