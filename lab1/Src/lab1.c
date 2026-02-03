@@ -41,7 +41,7 @@ int main(void)
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle pc8 and pc9
     }
 
-    HAL_Delay(10);
+    HAL_Delay(1);
   }
 }
 
