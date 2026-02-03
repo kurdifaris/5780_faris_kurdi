@@ -4,9 +4,9 @@
 
 void SystemClock_Config(void);
 void My_HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init);
+GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 void My_HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
 void My_HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
-GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 
 /**
   * @brief  The application entry point.
@@ -27,6 +27,9 @@ int main(void)
   GPIO_InitTypeDef initSt = {GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   My_HAL_GPIO_Init(GPIOC, &initSt); // initialize pc6/pc8 and pc7/pc9
   assert((GPIOC->MODER & (0xF << 12)) == (0x5 << 12)); // 12 for red and blue, 16 for green and orage
+  
+  GPIO_InitTypeDef btnSt = {GPIO_PIN_0, GPIO_MODE_INPUT, GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN};
+  My_HAL_GPIO_Init(GPIOA, &btnSt);
 
   My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET); // start pc6/pc8 high
   // assert(GPIOC->ODR == 0x00000100);

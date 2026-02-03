@@ -5,38 +5,37 @@
 void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 {
     // Configure LED pins ----
-    // clear bits then set 1 bit for each pin
-    GPIOx->MODER &= ~((3 << 12) | (3 << 14) | (3 << 16) | (3 << 18)); // pin 6,7,8,9
-    GPIOx->MODER |=  ((1 << 12) | (1 << 14) | (1 << 16) | (1 << 18)); // set to output 01
+    if (GPIOx == GPIOC) {
+    // clear bits then set 1
+    GPIOC->MODER &= ~((3 << 12) | (3 << 14));
+    GPIOC->MODER |= (GPIO_Init->Mode << 12) | (GPIO_Init->Mode << 14);
 
-    // set output type to push-pull
-    GPIOx->OTYPER &= ~((1 << 6) | (1 << 7) | (1 << 8) | (1 << 9)); // pin 6,7,8,9
+    // set pull-up pull-down
+    GPIOC->PUPDR &= ~((3 << 12) | (3 << 14));
+    GPIOC->PUPDR |= (GPIO_Init->Pull << 12) | (GPIO_Init->Pull << 14);
 
-    // set speed to low
-    GPIOx->OSPEEDR &= ~((3 << 12) | (3 << 14) | (3 << 16) | (3 << 18)); // pin 6,7,8,9
-
-    // set no pull-up, pull-down
-    GPIOx->PUPDR &= ~((3 << 12) | (3 << 14) | (3 << 16) | (3 << 18)); // pin 6,7,8,9
-
+    // set speed
+    GPIOC->OSPEEDR &= ~((3 << 12) | (3 << 14));
+    GPIOC->OSPEEDR |= (GPIO_Init->Speed << 12) | (GPIO_Init->Speed << 14); 
+    }
+    
     // Configure USER Button ----
-    // set mode to input 00
-    GPIOA->MODER &= ~(3 << 0); // pin 0
+    else if (GPIOx == GPIOA) {
+    // clear and set
+    GPIOA->MODER &= ~(3 << 0);
+    GPIOA->MODER |= (GPIO_Init->Mode << 0); // pin 0
 
-    // set speed to low
-    GPIOA->OSPEEDR &= ~(3 << 0); // pin 0
-
-    // set no pull-up, pull-down (clear and then set to 10)
+    // set pull-up pull-down
     GPIOA->PUPDR &= ~(3 << 0);
-    GPIOA->PUPDR |=  (2 << 0); 
+    GPIOA->PUPDR |= (GPIO_Init->Pull << 0);
+    }
 }
-
 
 /*
 void My_HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
 {
 }
 */
-
 
 GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
@@ -45,8 +44,6 @@ GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
     }
     return GPIO_PIN_RESET;
 }
-
-
 
 void My_HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState)
 {
