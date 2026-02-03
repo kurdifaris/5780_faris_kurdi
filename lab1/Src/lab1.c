@@ -3,6 +3,10 @@
 #include "assert.h"
 
 void SystemClock_Config(void);
+void My_HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init);
+void My_HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+void My_HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 
 /**
   * @brief  The application entry point.
@@ -21,10 +25,10 @@ int main(void)
   assert(RCC->AHBENR & RCC_AHBENR_GPIOAEN);
 
   GPIO_InitTypeDef initSt = {GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-  HAL_GPIO_Init(GPIOC, &initSt); // initialize pc6/pc8 and pc7/pc9
+  My_HAL_GPIO_Init(GPIOC, &initSt); // initialize pc6/pc8 and pc7/pc9
   assert((GPIOC->MODER & (0xF << 12)) == (0x5 << 12)); // 12 for red and blue, 16 for green and orage
 
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET); // start pc6/pc8 high
+  My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET); // start pc6/pc8 high
   // assert(GPIOC->ODR == 0x00000100);
 
   uint32_t debouncer = 0;
@@ -32,16 +36,16 @@ int main(void)
   while (1)
   {
     // HAL_Delay(200); // delay 200ms
-    // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6 | GPIO_PIN_7); // toggle pc8 and pc9
+    // My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6 | GPIO_PIN_7); // toggle pc8 and pc9
 
     debouncer = (debouncer << 1);
 
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
+    if (My_HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
       debouncer |= 0x01;
     }
 
     if (debouncer == 0x7FFFFFFF) {
-      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6 | GPIO_PIN_7); // toggle pc8 and pc9
+      My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6 | GPIO_PIN_7); // toggle pc8 and pc9
     }
 
     HAL_Delay(1);
