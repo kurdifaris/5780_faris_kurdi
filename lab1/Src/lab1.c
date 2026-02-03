@@ -17,18 +17,31 @@ int main(void)
 
   HAL_RCC_GPIOC_CLK_Enable(); // enable GPIOC clock
   assert(RCC->AHBENR & RCC_AHBENR_GPIOCEN);
+  HAL_RCC_GPIOA_CLK_Enable(); // enable GPIOA clock
+  assert(RCC->AHBENR & RCC_AHBENR_GPIOAEN);
 
   GPIO_InitTypeDef initSt = {GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &initSt); // initialize pc8 and pc9
   assert((GPIOC->MODER & (0xF << 16)) == (0x5 << 16));
 
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET); // start pc8 high
-  assert(GPIOC->ODR == 0x00000100);
+  // assert(GPIOC->ODR == 0x00000100);
+
+  uint32_t debouncer = 0;
 
   while (1)
   {
-    HAL_Delay(200); // delay 200ms
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle pc8 and pc9
+    debouncer = (debouncer << 1);
+
+    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
+      debouncer |= 0x01;
+    }
+
+    if (debouncer == 0x7FFFFFFF) {
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle pc8 and pc9
+    }
+
+    HAL_Delay(10);
   }
 }
 
