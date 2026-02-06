@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "assert.h"
 
 void SystemClock_Config(void);
 
@@ -14,11 +15,19 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
   GPIO_InitTypeDef LED = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &LED);
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
+
+  GPIO_InitTypeDef userButton = {GPIO_PIN_0, GPIO_MODE_INPUT, GPIO_SPEED_FREQ_LOW, GPIO_PULLDOWN};
+  HAL_GPIO_Init(GPIOA, &userButton);
+
+  assert((EXTI->IMR & EXTI_IMR_IM0) == 0); // make sure EXTI0 is not masked
+  Config_EXTI(GPIOA, GPIO_PIN_0);
+  assert((EXTI->IMR & EXTI_IMR_IM0) != 0); // make sure EXTI0 is masked
 
   while (1)
   {
