@@ -28,6 +28,7 @@ int main(void)
   assert((EXTI->IMR & EXTI_IMR_IM0) == 0); // make sure EXTI0 is not masked
   Config_EXTI(GPIOA, GPIO_PIN_0);
   assert((EXTI->IMR & EXTI_IMR_IM0) != 0); // make sure EXTI0 is masked
+  assert( (SYSCFG->EXTICR[0] & SYSCFG_EXTICR1_EXTI0) == SYSCFG_EXTICR1_EXTI0_PA ); // make sure EXTI0 is connected to PA0
 
   while (1)
   {
