@@ -60,6 +60,11 @@ void EXTI0_1_IRQHandler(void)
 {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle orange and green LEDS
 
+    for (volatile uint32_t count = 0; count < 1500000; count++) {
+    }
+
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle orange and green LEDS
+
     EXTI->PR |= EXTI_PR_PR0; 
 }
 
