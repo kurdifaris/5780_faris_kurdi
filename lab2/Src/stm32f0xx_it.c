@@ -56,6 +56,13 @@ void SysTick_Handler(void)
   }
 }
 
+void EXTI0_1_IRQHandler(void)
+{
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9); // toggle orange and green LEDS
+
+    EXTI->PR |= EXTI_PR_PR0; 
+}
+
 /******************************************************************************/
 /* STM32F0xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
