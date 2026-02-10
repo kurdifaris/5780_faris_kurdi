@@ -15,6 +15,8 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  NVIC_SetPriority(SysTick_IRQn, 2);
+
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
@@ -30,7 +32,7 @@ int main(void)
   assert((EXTI->IMR & EXTI_IMR_IM0) != 0); // make sure EXTI0 is masked
   assert( (SYSCFG->EXTICR[0] & SYSCFG_EXTICR1_EXTI0) == SYSCFG_EXTICR1_EXTI0_PA ); // make sure EXTI0 is connected to PA0
 
-  NVIC_SetPriority(EXTI0_1_IRQn, 1);
+  NVIC_SetPriority(EXTI0_1_IRQn, 3);
   NVIC_EnableIRQ(EXTI0_1_IRQn);
 
   while (1)
