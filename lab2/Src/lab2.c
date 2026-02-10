@@ -30,6 +30,9 @@ int main(void)
   assert((EXTI->IMR & EXTI_IMR_IM0) != 0); // make sure EXTI0 is masked
   assert( (SYSCFG->EXTICR[0] & SYSCFG_EXTICR1_EXTI0) == SYSCFG_EXTICR1_EXTI0_PA ); // make sure EXTI0 is connected to PA0
 
+  NVIC_SetPriority(EXTI0_1_IRQn, 1);
+  NVIC_EnableIRQ(EXTI0_1_IRQn);
+
   while (1)
   {
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6);
