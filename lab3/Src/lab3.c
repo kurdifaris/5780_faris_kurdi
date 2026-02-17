@@ -21,9 +21,19 @@ int main(void)
 
   while (1)
   {
-    
+    static uint16_t brightness = 0;
+    static int16_t step = 5;
+
+    TIM3->CCR1 = brightness;
+    TIM3->CCR2 = brightness;
+    brightness += step;
+
+    if (brightness == 0 || brightness >= 1000) {
+      step = -step;
+    }
+
+    HAL_Delay(15);
   }
-  return -1;
 }
 
 /**

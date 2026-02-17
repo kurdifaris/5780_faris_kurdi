@@ -33,11 +33,12 @@ void PWM_Init(void) {
     TIM3->ARR = 1000; // 800Hz
 
     TIM3->CCMR1 |= (7 << TIM_CCMR1_OC1M_Pos);
-    TIM3->CCMR1 |= (6 << TIM_CCMR1_OC2M_Pos); 
+    TIM3->CCMR1 |= (6 << TIM_CCMR1_OC2M_Pos);
+
 
     TIM3->CCMR1 |= (TIM_CCMR1_OC1PE | TIM_CCMR1_OC2PE); // preload
     TIM3->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC2E); // enable output
-
+    
     // init duty cycle
     TIM3->CCR1 = 200;
     TIM3->CCR2 = 200;
