@@ -1,5 +1,7 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "stm32f0xx_it.h"
+#include "timer.h"
 
 void SystemClock_Config(void);
 
@@ -14,9 +16,12 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  Timer_Interrupt();
+  PWM_Init();
+
   while (1)
   {
- 
+    
   }
   return -1;
 }

@@ -47,6 +47,13 @@ void SysTick_Handler(void)
   HAL_IncTick();
 }
 
+void TIM2_IRQHandler(void)
+{
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9);
+
+    TIM2->SR &= ~TIM_SR_UIF; // clear interrupt flag
+}
+
 /******************************************************************************/
 /* STM32F0xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
