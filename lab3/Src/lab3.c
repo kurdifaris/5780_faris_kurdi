@@ -32,7 +32,7 @@ int main(void)
       step = -step;
     }
 
-    HAL_Delay(15);
+    HAL_Delay(5);
   }
 }
 

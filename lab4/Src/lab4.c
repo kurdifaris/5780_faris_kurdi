@@ -1,7 +1,10 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "usart.h"
 
 void SystemClock_Config(void);
+
+// /dev/tty.usbserial-A5069RR4
 
 /**
   * @brief  The application entry point.
@@ -14,9 +17,13 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  USART3_GPIO_Init();
+  USART3_Init();
+
+  USART_TransmitString("test.. success\r\n");
+
   while (1)
   {
- 
   }
   return -1;
 }
