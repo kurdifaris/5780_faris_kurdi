@@ -1,4 +1,5 @@
 #include "usart.h"
+#include "stm32f0xx.h"
 
 void USART3_GPIO_Init(void) {
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;

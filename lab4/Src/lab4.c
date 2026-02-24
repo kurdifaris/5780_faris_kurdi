@@ -20,12 +20,29 @@ int main(void)
   USART3_GPIO_Init();
   USART3_Init();
 
-  USART_TransmitString("test.. success\r\n");
+  GPIOC->MODER |= (GPIO_MODER_MODER6_0 | GPIO_MODER_MODER7_0 | GPIO_MODER_MODER8_0 | GPIO_MODER_MODER9_0);
+
+  USART_TransmitString("type r, g, b, o to toggle LEDs\r\n");
 
   while (1)
   {
+  char input = USART_ReceiveChar();
+    if (input == 'r') {
+      GPIOC->ODR ^= GPIO_ODR_6; // red
+    } 
+    else if (input == 'b') {
+    GPIOC->ODR ^= GPIO_ODR_7; // blue
+    } 
+    else if (input == 'g') {
+    GPIOC->ODR ^= GPIO_ODR_9; // green
+    }
+    else if (input == 'o') {
+      GPIOC->ODR ^= GPIO_ODR_8; // orange
+    } 
+    else {
+      USART_TransmitString("invalid key\r\n");
+    }
   }
-  return -1;
 }
 
 /**
