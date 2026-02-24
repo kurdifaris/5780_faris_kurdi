@@ -1,6 +1,7 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_it.h"
+#include "usart.h"
 
 /******************************************************************************/
 /*           Cortex-M0 Processor Interruption and Exception Handlers          */
@@ -45,6 +46,13 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   HAL_IncTick();
+}
+
+void USART3_4_IRQHandler(void) {
+    if (USART3->ISR & USART_ISR_RXNE) {
+        rx_char = (char)(USART3->RDR);
+        rx_flag = 1;
+    }
 }
 
 /******************************************************************************/

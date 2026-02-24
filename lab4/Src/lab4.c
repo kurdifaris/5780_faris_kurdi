@@ -22,25 +22,69 @@ int main(void)
 
   GPIOC->MODER |= (GPIO_MODER_MODER6_0 | GPIO_MODER_MODER7_0 | GPIO_MODER_MODER8_0 | GPIO_MODER_MODER9_0);
 
-  USART_TransmitString("type r, g, b, o to toggle LEDs\r\n");
+  USART_TransmitString("checkoff 1 type r, g, b, o to toggle LEDs\r\n");
+  // USART_TransmitString("checkoff 2\r\n");
+
 
   while (1)
   {
-  char input = USART_ReceiveChar();
-    if (input == 'r') {
-      GPIOC->ODR ^= GPIO_ODR_6; // red
-    } 
-    else if (input == 'b') {
-    GPIOC->ODR ^= GPIO_ODR_7; // blue
-    } 
-    else if (input == 'g') {
-    GPIOC->ODR ^= GPIO_ODR_9; // green
+  
+  // // 1st checkoff
+  // // flag for normal checkoff 1 use, due to interrupt implementation
+  // if (rx_flag) {
+  //     char input = rx_char; 
+  //     rx_flag = 0;
+          
+  //   if (input == 'r') { GPIOC->ODR ^= GPIO_ODR_6; } 
+  //     else if (input == 'b') { GPIOC->ODR ^= GPIO_ODR_7; } 
+  //     else if (input == 'g') { GPIOC->ODR ^= GPIO_ODR_9; } 
+  //     else if (input == 'o') { GPIOC->ODR ^= GPIO_ODR_8; } 
+  //     else { USART_TransmitString("invalid key\r\n"); }
+  // }
+  // }
+
+  // 2nd checkoff
+  USART_TransmitString("CMD? ");
+
+    // wait for color
+    while (rx_flag == 0);
+    char color = rx_char;
+    rx_flag = 0;
+    USART_TransmitCharacter(color);
+    if (color != 'r' && color != 'g' && color != 'b' && color != 'o') {
+        USART_TransmitString("\r\ninvalid color\r\n");
+        continue;
     }
-    else if (input == 'o') {
-      GPIOC->ODR ^= GPIO_ODR_8; // orange
+
+    // wait for type of action
+    while (rx_flag == 0); 
+    char action = rx_char;
+    rx_flag = 0;
+    USART_TransmitCharacter(action);
+    USART_TransmitString("\r\n");
+
+    // figure out which pin
+    uint32_t pin = 0;
+    if (color == 'r') pin = GPIO_ODR_6;
+    if (color == 'b') pin = GPIO_ODR_7;
+    if (color == 'o') pin = GPIO_ODR_8;
+    if (color == 'g') pin = GPIO_ODR_9;
+
+    // action
+    if (action == '0') {
+        GPIOC->BSRR = (pin << 16); // off
+        USART_TransmitString("off\r\n");
+    } 
+    else if (action == '1') {
+        GPIOC->BSRR = pin;         // on
+        USART_TransmitString("on\r\n");
+    } 
+    else if (action == '2') {
+        GPIOC->ODR ^= pin;         // toggle
+        USART_TransmitString("toggle\r\n");
     } 
     else {
-      USART_TransmitString("invalid key\r\n");
+        USART_TransmitString("invalid action\r\n");
     }
   }
 }
