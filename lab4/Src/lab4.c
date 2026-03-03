@@ -22,8 +22,8 @@ int main(void)
 
   GPIOC->MODER |= (GPIO_MODER_MODER6_0 | GPIO_MODER_MODER7_0 | GPIO_MODER_MODER8_0 | GPIO_MODER_MODER9_0);
 
-  USART_TransmitString("checkoff 1 type r, g, b, o to toggle LEDs\r\n");
-  // USART_TransmitString("checkoff 2\r\n");
+  // USART_TransmitString("checkoff 1 type r, g, b, o to toggle LEDs\r\n");
+  USART_TransmitString("checkoff 2\r\n");
 
 
   while (1)
