@@ -13,6 +13,38 @@ int main(void)
   HAL_Init();
   /* Configure the system clock */
   SystemClock_Config();
+  
+  RCC->AHBENR |= RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN; //gpio b + c clock enable
+  RCC->APB1ENR |= RCC_APB1ENR_I2C2EN; //i2c2 clock enable
+
+  //pb11
+  GPIOB->MODER   &= ~(3 << (11*2));
+  GPIOB->MODER   |=  (2 << (11*2));
+  GPIOB->OTYPER  |=  (1 << 11);
+  GPIOB->AFR[1]  &= ~(0xF << ((11-8)*4));
+  GPIOB->AFR[1]  |=  (1   << ((11-8)*4));
+
+  //pb13
+  GPIOB->MODER   &= ~(3 << (13*2));
+  GPIOB->MODER   |=  (2 << (13*2));
+  GPIOB->OTYPER  |=  (1 << 13);
+  GPIOB->AFR[1]  &= ~(0xF << ((13-8)*4));
+  GPIOB->AFR[1]  |=  (1   << ((13-8)*4));
+
+  //pb14
+  GPIOB->MODER   &= ~(3 << (14*2));
+  GPIOB->MODER   |=  (1 << (14*2));
+  GPIOB->OTYPER  &= ~(1 << 14);
+  GPIOB->ODR     |=  (1 << 14);
+
+  //pc0
+  GPIOC->MODER   &= ~(3 << (0*2));
+  GPIOC->MODER   |=  (1 << (0*2));
+  GPIOC->OTYPER  &= ~(1 << 0);
+  GPIOC->ODR     |=  (1 << 0);
+
+  I2C2->TIMINGR = (1 << 28) | (0x4 << 20) | (0x2 << 16) | (0xF << 8) | (0x13 << 0);
+  I2C2->CR1 |= I2C_CR1_PE;
 
   while (1)
   {
