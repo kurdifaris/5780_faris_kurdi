@@ -46,6 +46,30 @@ int main(void)
   I2C2->TIMINGR = (1 << 28) | (0x4 << 20) | (0x2 << 16) | (0xF << 8) | (0x13 << 0);
   I2C2->CR1 |= I2C_CR1_PE;
 
+  //clear and set sadd and nbytes
+  I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+  I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_START;
+
+  while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+
+  //write the WHO_AM_I reg
+  I2C2->TXDR = 0x0F;
+
+  while (!(I2C2->ISR & I2C_ISR_TC));
+
+  //setup read
+  I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+  I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_RD_WRN | I2C_CR2_START;
+
+  //wait
+  while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
+  while (!(I2C2->ISR & I2C_ISR_TC));
+
+  uint8_t who_am_i = I2C2->RXDR;
+
+  //bus
+  I2C2->CR2 |= I2C_CR2_STOP;
+
   while (1)
   {
  
