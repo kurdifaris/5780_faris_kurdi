@@ -85,9 +85,34 @@ int main(void)
   while (!(I2C2->ISR & I2C_ISR_TC));
   I2C2->CR2 |= I2C_CR2_STOP;
 
+  GPIO_InitTypeDef LED = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW};
+  HAL_GPIO_Init(GPIOC, &LED);
+
+  int16_t ReadGyro(uint8_t reg_addr) {
+    //send the register address to read from
+    I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+    I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_START;
+    while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+    I2C2->TXDR = reg_addr;
+    while (!(I2C2->ISR & I2C_ISR_TC));
+
+    //restart and low then high
+    I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+    I2C2->CR2 |= (2 << 16) | (0x69 << 1) | I2C_CR2_RD_WRN | I2C_CR2_START;
+    while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
+    uint8_t low = I2C2->RXDR;
+    while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
+    while (!(I2C2->ISR & I2C_ISR_TC));
+    uint8_t high = I2C2->RXDR;
+    I2C2->CR2 |= I2C_CR2_STOP;
+
+    //combine
+    return (int16_t)((high << 8) | low);
+  }
+
   while (1)
   {
- 
+
   }
   return -1;
 }
