@@ -112,9 +112,17 @@ int main(void)
 
   while (1)
   {
+    int16_t x = ReadGyroAxis(0xA8);
+    int16_t y = ReadGyroAxis(0xAA);
 
+    GPIOC->ODR &= ~((1 << 6) | (1 << 7) | (1 << 8) | (1 << 9));
+    if      (x >  500) GPIOC->ODR |= (1 << 6);
+    else if (x < -500) GPIOC->ODR |= (1 << 7);
+    if      (y >  500) GPIOC->ODR |= (1 << 8);
+    else if (y < -500) GPIOC->ODR |= (1 << 9);
+
+    HAL_Delay(100);
   }
-  return -1;
 }
 
 /**
