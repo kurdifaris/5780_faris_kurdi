@@ -70,6 +70,21 @@ int main(void)
   //bus
   I2C2->CR2 |= I2C_CR2_STOP;
 
+  //write 0x0B to CTRL_REG1
+  I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+  I2C2->CR2 |= (2 << 16) | (0x69 << 1) | I2C_CR2_START;
+
+  //wait and send
+  while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+  I2C2->TXDR = 0x20;
+
+  //wait and send
+  while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+  I2C2->TXDR = 0x0B;
+
+  while (!(I2C2->ISR & I2C_ISR_TC));
+  I2C2->CR2 |= I2C_CR2_STOP;
+
   while (1)
   {
  
