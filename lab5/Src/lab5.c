@@ -29,7 +29,7 @@ int main(void)
   GPIOB->MODER   |=  (2 << (13*2));
   GPIOB->OTYPER  |=  (1 << 13);
   GPIOB->AFR[1]  &= ~(0xF << ((13-8)*4));
-  GPIOB->AFR[1]  |=  (1   << ((13-8)*4));
+  GPIOB->AFR[1]  |=  (5   << ((13-8)*4));
 
   //pb14
   GPIOB->MODER   &= ~(3 << (14*2));
@@ -46,74 +46,80 @@ int main(void)
   I2C2->TIMINGR = (1 << 28) | (0x4 << 20) | (0x2 << 16) | (0xF << 8) | (0x13 << 0);
   I2C2->CR1 |= I2C_CR1_PE;
 
-  //clear and set sadd and nbytes
-  I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
-  I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_START;
+      // //clear and set sadd and nbytes
+      // I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+      // I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_START;
 
-  while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+      // while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
 
-  //write the WHO_AM_I reg
-  I2C2->TXDR = 0x0F;
+      // //write the WHO_AM_I reg
+      // I2C2->TXDR = 0x0F;
 
-  while (!(I2C2->ISR & I2C_ISR_TC));
+      // while (!(I2C2->ISR & I2C_ISR_TC));
 
-  //setup read
-  I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
-  I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_RD_WRN | I2C_CR2_START;
+      // //setup read
+      // I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
+      // I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_RD_WRN | I2C_CR2_START;
 
-  //wait
-  while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
-  while (!(I2C2->ISR & I2C_ISR_TC));
+      // //wait
+      // while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
+      // while (!(I2C2->ISR & I2C_ISR_TC));
+      // uint8_t who_am_i = I2C2->RXDR;
 
-  uint8_t who_am_i = I2C2->RXDR;
-
-  //bus
-  I2C2->CR2 |= I2C_CR2_STOP;
+      // //bus
+      // I2C2->CR2 |= I2C_CR2_STOP;           // this line was missing
+      // while (!(I2C2->ISR & I2C_ISR_STOPF));  // wait for stop to complete
+      // I2C2->ICR |= I2C_ICR_STOPCF;           // clear the stop flag
+      // HAL_Delay(10);
+  
+  // GPIO_InitTypeDef TEST = {GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW};
+  // HAL_GPIO_Init(GPIOC, &TEST);
+  // while(1) {
+  //   GPIOC->ODR ^= (1 << 6);
+  //   HAL_Delay(who_am_i == 0xD3 ? 200 : 1000);
+  // }
 
   //write 0x0B to CTRL_REG1
-  I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
-  I2C2->CR2 |= (2 << 16) | (0x69 << 1) | I2C_CR2_START;
-
-  //wait and send
-  while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+  I2C2->CR2 = (0x69 << 1) | (2 << 16) | (0 << 10) | (1 << 13);
+  while (!(I2C2->ISR & I2C_ISR_TXIS) && !(I2C2->ISR & I2C_ISR_NACKF));
   I2C2->TXDR = 0x20;
-
-  //wait and send
-  while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
+  while (!(I2C2->ISR & I2C_ISR_TXIS) && !(I2C2->ISR & I2C_ISR_NACKF));
   I2C2->TXDR = 0x0B;
-
   while (!(I2C2->ISR & I2C_ISR_TC));
   I2C2->CR2 |= I2C_CR2_STOP;
+  while (!(I2C2->ISR & I2C_ISR_STOPF));
+  I2C2->ICR |= I2C_ICR_STOPCF;
+  HAL_Delay(10);
 
   GPIO_InitTypeDef LED = {GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW};
   HAL_GPIO_Init(GPIOC, &LED);
 
-  int16_t ReadGyro(uint8_t reg_addr) {
-    //send the register address to read from
-    I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
-    I2C2->CR2 |= (1 << 16) | (0x69 << 1) | I2C_CR2_START;
-    while (!(I2C2->ISR & (I2C_ISR_TXIS | I2C_ISR_NACKF)));
-    I2C2->TXDR = reg_addr;
-    while (!(I2C2->ISR & I2C_ISR_TC));
-
-    //restart and low then high
-    I2C2->CR2 &= ~((0x7F << 16) | (0x3FF << 0));
-    I2C2->CR2 |= (2 << 16) | (0x69 << 1) | I2C_CR2_RD_WRN | I2C_CR2_START;
-    while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
-    uint8_t low = I2C2->RXDR;
-    while (!(I2C2->ISR & (I2C_ISR_RXNE | I2C_ISR_NACKF)));
-    while (!(I2C2->ISR & I2C_ISR_TC));
-    uint8_t high = I2C2->RXDR;
-    I2C2->CR2 |= I2C_CR2_STOP;
-
-    //combine
-    return (int16_t)((high << 8) | low);
-  }
-
   while (1)
   {
-    int16_t x = ReadGyroAxis(0xA8);
-    int16_t y = ReadGyroAxis(0xAA);
+    uint8_t gyroVals[4];
+    uint8_t reg = 0x28;
+
+    for (int i = 0; i < 4; i++)
+    {
+      I2C2->CR2 = (0x69 << 1) | (1 << 16);
+      I2C2->CR2 |= I2C_CR2_START;
+      while (!(I2C2->ISR & I2C_ISR_TXIS));
+      I2C2->TXDR = reg;
+      while (!(I2C2->ISR & I2C_ISR_TC));
+
+      I2C2->CR2 = (0x69 << 1) | (1 << 16) | (1 << 10);
+      I2C2->CR2 |= I2C_CR2_START;
+      while (!(I2C2->ISR & I2C_ISR_RXNE));
+      gyroVals[i] = I2C2->RXDR;
+      I2C2->CR2 |= I2C_CR2_STOP;
+      while (!(I2C2->ISR & I2C_ISR_STOPF));
+      I2C2->ICR |= I2C_ICR_STOPCF;
+
+      reg++;
+    }
+
+    int16_t x = (int16_t)((gyroVals[1] << 8) | gyroVals[0]);
+    int16_t y = (int16_t)((gyroVals[3] << 8) | gyroVals[2]);
 
     GPIOC->ODR &= ~((1 << 6) | (1 << 7) | (1 << 8) | (1 << 9));
     if      (x >  500) GPIOC->ODR |= (1 << 6);
