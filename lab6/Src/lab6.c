@@ -32,6 +32,25 @@ void ADC_init(void) {
   ADC1->CR |= ADC_CR_ADSTART;
 }
 
+//sin wave
+const uint8_t sine_table[32] = {127,151,175,197,216,232,244,251,254,251,244,232,216,
+197,175,151,127,102,78,56,37,21,9,2,0,2,9,21,37,56,78,102};
+
+void DAC_init(void) {
+  //etup PA4 for DAC output
+  RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+  GPIOA->MODER |=  GPIO_MODER_MODER4;
+  GPIOA->PUPDR &= ~GPIO_PUPDR_PUPDR4;
+
+  //DAC clock
+  RCC->APB1ENR |= RCC_APB1ENR_DACEN;
+
+  DAC->CR |= DAC_CR_TEN1;
+  DAC->CR |= DAC_CR_TSEL1;
+
+  DAC->CR |= DAC_CR_EN1;
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -45,6 +64,9 @@ int main(void)
   GPIOC->MODER |= (GPIO_MODER_MODER6_0 | GPIO_MODER_MODER7_0 | GPIO_MODER_MODER8_0 | GPIO_MODER_MODER9_0);
 
   ADC_init();
+  
+  DAC_init();
+  uint32_t i = 0;
 
   while (1) {
     //read adc
@@ -59,6 +81,11 @@ int main(void)
 
     //write
     GPIOC->ODR = (GPIOC->ODR & ~(GPIO_ODR_6 | GPIO_ODR_7 | GPIO_ODR_8 | GPIO_ODR_9)) | led_bits;
+
+    //sin wave output 
+    DAC->DHR8R1 = sine_table[i];
+    i = (i + 1) % 32;
+    HAL_Delay(1);
   }
   return -1;
 }
