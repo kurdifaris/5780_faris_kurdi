@@ -3,6 +3,30 @@
 
 void SystemClock_Config(void);
 
+void ADC_init(void) {
+  RCC->AHBENR  |= RCC_AHBENR_GPIOCEN;
+  GPIOC->MODER |=  GPIO_MODER_MODER0;
+  GPIOC->PUPDR &= ~GPIO_PUPDR_PUPDR0; 
+  RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
+
+  // 8bit res, continuous mode, software trigger
+  ADC1->CFGR1 |=  ADC_CFGR1_RES_1;
+  ADC1->CFGR1 |=  ADC_CFGR1_CONT;
+  ADC1->CFGR1 &= ~ADC_CFGR1_EXTEN;
+
+  ADC1->CHSELR |= ADC_CHSELR_CHSEL10;
+
+  // calibrate
+  ADC1->CR &= ~ADC_CR_ADEN;
+  ADC1->CR |=  ADC_CR_ADCAL;
+  while (ADC1->CR & ADC_CR_ADCAL); 
+
+  // enable and wait until ready
+  ADC1->CR |= ADC_CR_ADEN;
+  while (!(ADC1->ISR & ADC_ISR_ADRDY));
+  ADC1->CR |= ADC_CR_ADSTART;
+}
+
 /**
   * @brief  The application entry point.
   * @retval int
