@@ -1,6 +1,11 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
 
+#define LED1_THRESH 64
+#define LED2_THRESH 128
+#define LED3_THRESH 192
+#define LED4_THRESH 220
+
 void SystemClock_Config(void);
 
 void ADC_init(void) {
@@ -9,19 +14,19 @@ void ADC_init(void) {
   GPIOC->PUPDR &= ~GPIO_PUPDR_PUPDR0; 
   RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
 
-  // 8bit res, continuous mode, software trigger
+  //8bit res, continuous mode, software trigger
   ADC1->CFGR1 |=  ADC_CFGR1_RES_1;
   ADC1->CFGR1 |=  ADC_CFGR1_CONT;
   ADC1->CFGR1 &= ~ADC_CFGR1_EXTEN;
 
   ADC1->CHSELR |= ADC_CHSELR_CHSEL10;
 
-  // calibrate
+  //calibrate
   ADC1->CR &= ~ADC_CR_ADEN;
   ADC1->CR |=  ADC_CR_ADCAL;
   while (ADC1->CR & ADC_CR_ADCAL); 
 
-  // enable and wait until ready
+  //enable and wait until ready
   ADC1->CR |= ADC_CR_ADEN;
   while (!(ADC1->ISR & ADC_ISR_ADRDY));
   ADC1->CR |= ADC_CR_ADSTART;
@@ -33,14 +38,27 @@ void ADC_init(void) {
   */
 int main(void)
 {
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-  /* Configure the system clock */
   SystemClock_Config();
 
-  while (1)
-  {
- 
+  RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+  GPIOC->MODER |= (GPIO_MODER_MODER6_0 | GPIO_MODER_MODER7_0 | GPIO_MODER_MODER8_0 | GPIO_MODER_MODER9_0);
+
+  ADC_init();
+
+  while (1) {
+    //read adc
+    uint8_t adc_val = ADC1->DR;
+    uint32_t led_bits = 0;
+
+    //led bitmask
+    if (adc_val > LED1_THRESH) led_bits |= GPIO_ODR_6;
+    if (adc_val > LED2_THRESH) led_bits |= GPIO_ODR_7;
+    if (adc_val > LED3_THRESH) led_bits |= GPIO_ODR_8;
+    if (adc_val > LED4_THRESH) led_bits |= GPIO_ODR_9;
+
+    //write
+    GPIOC->ODR = (GPIOC->ODR & ~(GPIO_ODR_6 | GPIO_ODR_7 | GPIO_ODR_8 | GPIO_ODR_9)) | led_bits;
   }
   return -1;
 }
