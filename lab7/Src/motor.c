@@ -197,7 +197,7 @@ void ADC_init(void) {
 void PI_update(void) {
     __disable_irq();
     /// TODO: calculate error signal and write to "error" variable
-
+    error = (target_rpm * 2) / 5 - motor_speed;
     /* Hint: Remember that your calculated motor speed may not be directly in RPM!
      *       You will need to convert the target or encoder speeds to the same units.
      *       I recommend converting to whatever units result in larger values, gives
@@ -206,9 +206,12 @@ void PI_update(void) {
 
 
     /// TODO: Calculate integral portion of PI controller, write to "error_integral" variable
-
+    error_integral = error_integral + (Ki * error);
     /// TODO: Clamp the value of the integral to a limited positive range
-
+    if (error_integral < 0) {
+        error_integral = 0;}
+    if (error_integral > 3200) {
+        error_integral = 3200;}
     /* Hint: The value clamp is needed to prevent excessive "windup" in the integral.
      *       You'll read more about this for the post-lab. The exact value is arbitrary
      *       but affects the PI tuning.
@@ -216,8 +219,7 @@ void PI_update(void) {
      */
 
     /// TODO: Calculate proportional portion, add integral and write to "output" variable
-
-    int16_t output = 0; // Change this!
+    int16_t output = (Kp * error) + (error_integral); // Change this!
 
     /* Because the calculated values for the PI controller are significantly larger than
      * the allowable range for duty cycle, you'll need to divide the result down into
