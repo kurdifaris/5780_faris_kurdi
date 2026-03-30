@@ -90,6 +90,7 @@ int main(void) {
     while (1) {
         GPIOC->ODR ^= GPIO_ODR_9;           // Toggle green LED (heartbeat)
         encoder_count = TIM2->CNT;
+        log_data();
         HAL_Delay(128);                      // Delay 1/8 second
     }
 }
