@@ -9,14 +9,14 @@
  *  -------------------------------------------------------------------------------------------------------------
  */
 
-volatile int16_t error_integral;    // Integrated error signal
-volatile uint8_t duty_cycle;    // Output PWM duty cycle
-volatile int16_t target_rpm;    // Desired speed target
-volatile int16_t motor_speed;   // Measured motor speed
-volatile int8_t adc_value;      // ADC measured motor current
-volatile int16_t error;         // Speed error signal
-volatile uint8_t Kp;            // Proportional gain
-volatile uint8_t Ki;            // Integral gain
+volatile int16_t error_integral = 0;    // Integrated error signal
+volatile uint8_t duty_cycle = 0;        // Output PWM duty cycle
+volatile int16_t target_rpm = 0;        // Desired speed target
+volatile int16_t motor_speed = 0;       // Measured motor speed
+volatile int8_t adc_value = 0;          // ADC measured motor current
+volatile int16_t error = 0;             // Speed error signal
+volatile uint8_t Kp = 2;                // Proportional gain
+volatile uint8_t Ki = 1;                // Integral gain
 
 static uint8_t buf0[1024];
 static uint8_t buf1[1024];
